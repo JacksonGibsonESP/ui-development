@@ -9,15 +9,15 @@
 </head>
 <body ng-controller="mainCtrl">
 <h1>Регистрация</h1>
-<form name="regForm" ng-if="!registered">
+<form name="regForm" ng-if="!infoMessages.registered">
 <label for="name">Фамилия, имя, отчество</label>
-<input type="text" ng-model="name">
+<input type="text" ng-model="registerInfo.personName">
 <label for="email">Email</label>
-<input type="text" ng-change="incorrectEmail=false" ng-model="email">
+<input type="text" ng-change="infoMessages.incorrectEmail = false" ng-model="registerInfo.personEmail">
 <input type="submit" value="Отправить" ng-click="submit()">
-<div ng-show="incorrectEmail">Неправильный email</div>
+<div ng-show="infoMessages.incorrectEmail">Неправильный email</div>
 </form>
-<div ng-if="registered">Регистрация выполнена успешно</div>
+<div ng-if="infoMessages.registered">Регистрация выполнена успешно</div>
 <script type="text/javascript">
 angular.module('test3app',[])
 .controller('mainCtrl', function($scope, $http){
@@ -29,8 +29,30 @@ angular.module('test3app',[])
     // - если она вернет true, необходимо, используя сервис $http,
     // отправить POST-запрос с ФИО и email на URL '/' и при получении
     // ответа скрыть форму и показать сообщение "Регистрация выполнена успешно"
+    $scope.registerInfo = {
+        personName: "",
+        personEmail: ""
+    };
+
+    $scope.infoMessages = {
+        registered: false,
+        incorrectEmail: false
+    };
+
     $scope.submit = function() {
-        
+        if (checkEmail($scope.registerInfo.personEmail)) {
+            $http.post('/', {
+                name: $scope.registerInfo.personName,
+                email: $scope.registerInfo.personEmail
+            })
+                .then(function(result){
+                    console.log(result);
+                    $scope.infoMessages.registered = true;
+                })
+
+        } else {
+            $scope.infoMessages.incorrectEmail = true;
+        }
     };
 });
 
